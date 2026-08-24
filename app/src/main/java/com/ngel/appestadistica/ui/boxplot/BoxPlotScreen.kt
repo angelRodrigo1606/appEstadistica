@@ -1,5 +1,6 @@
 package com.ngel.appestadistica.ui.boxplot
 
+import android.graphics.Paint
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,8 +24,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.ngel.appestadistica.domain.StatisticsCalculator
 import com.ngel.appestadistica.domain.model.BoxPlotSummary
 import com.ngel.appestadistica.ui.StatisticsUiState
@@ -41,7 +45,7 @@ fun BoxPlotScreen(state: StatisticsUiState, onBack: () -> Unit) {
             Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                 Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     SummaryLabels(plot)
-                    BoxPlotChart(plot, Modifier.fillMaxWidth().height(170.dp))
+                    BoxPlotChart(plot, Modifier.fillMaxWidth().height(250.dp))
                     Text("Valor", style = MaterialTheme.typography.labelMedium)
                 }
             }
@@ -91,10 +95,10 @@ private fun BoxPlotChart(plot: BoxPlotSummary, modifier: Modifier = Modifier) {
         val start = domainMin - padding
         val end = domainMax + padding
         fun x(value: Double) = ((value - start) / (end - start) * (size.width - 24.dp.toPx()) + 12.dp.toPx()).toFloat()
-        val middle = size.height * .48f
+        val middle = size.height * .30f
         val boxTop = middle - 30.dp.toPx()
         val boxBottom = middle + 30.dp.toPx()
-        val axisY = size.height * .82f
+        val axisY = size.height * .56f
         drawLine(Color.Gray, Offset(12.dp.toPx(), axisY), Offset(size.width - 12.dp.toPx(), axisY), 2.dp.toPx())
         drawLine(Color.DarkGray, Offset(x(plot.lowerWhisker), middle), Offset(x(plot.q1), middle), 3.dp.toPx())
         drawLine(Color.DarkGray, Offset(x(plot.q3), middle), Offset(x(plot.upperWhisker), middle), 3.dp.toPx())
@@ -107,6 +111,39 @@ private fun BoxPlotChart(plot: BoxPlotSummary, modifier: Modifier = Modifier) {
         repeat(6) { index ->
             val tickX = 12.dp.toPx() + index * (size.width - 24.dp.toPx()) / 5
             drawLine(Color.Gray, Offset(tickX, axisY), Offset(tickX, axisY - 7.dp.toPx()), 1.dp.toPx())
+        }
+        drawAxisValueLabels(
+            values = listOf(plot.lowerWhisker, plot.q1, plot.median, plot.q3, plot.upperWhisker),
+            axisY = axisY,
+            xForValue = ::x
+        )
+    }
+}
+
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawAxisValueLabels(
+    values: List<Double>,
+    axisY: Float,
+    xForValue: (Double) -> Float
+) {
+    val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = android.graphics.Color.DKGRAY
+        textSize = 10.sp.toPx()
+    }
+    val sidePadding = 4.dp.toPx()
+    val gap = 6.dp.toPx()
+    val rowHeight = 14.dp.toPx()
+    val rowEnds = mutableListOf<Float>()
+    val labels = values.distinct().sorted().map { value ->
+        val text = value.display()
+        val width = textPaint.measureText(text)
+        val left = (xForValue(value) - width / 2).coerceIn(sidePadding, size.width - width - sidePadding)
+        val row = rowEnds.indexOfFirst { left >= it + gap }.takeIf { it >= 0 } ?: rowEnds.size
+        if (row == rowEnds.size) rowEnds += left + width else rowEnds[row] = left + width
+        Triple(text, left, row)
+    }
+    drawIntoCanvas { canvas ->
+        labels.forEach { (text, left, row) ->
+            canvas.nativeCanvas.drawText(text, left, axisY + 18.dp.toPx() + row * rowHeight, textPaint)
         }
     }
 }
