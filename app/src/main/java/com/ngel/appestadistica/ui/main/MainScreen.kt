@@ -45,7 +45,8 @@ fun MainScreen(
     onCalculate: () -> Unit,
     onToggleStatistics: () -> Unit,
     onFrequencyClick: () -> Unit,
-    onBoxPlotClick: () -> Unit
+    onBoxPlotClick: () -> Unit,
+    onPositionMeasuresClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
@@ -56,6 +57,7 @@ fun MainScreen(
         InputCard(state, onInputChange, onVariableSelected, onCalculate)
         NavigationCard("▣", "GENERAR tabla de frecuencias", onFrequencyClick)
         NavigationCard("↕", "GENERAR GRÁFICO DE CAJA O BIGOTE", onBoxPlotClick)
+        NavigationCard("%", "CONSULTAR MEDIDAS DE POSICIÓN", onPositionMeasuresClick)
         state.statistics?.let { StatisticsCard(it, state.statisticsExpanded, onToggleStatistics) }
     }
 }

@@ -10,10 +10,12 @@ import com.ngel.appestadistica.ui.StatisticsViewModel
 import com.ngel.appestadistica.ui.boxplot.BoxPlotScreen
 import com.ngel.appestadistica.ui.frequency.FrequencyTableScreen
 import com.ngel.appestadistica.ui.main.MainScreen
+import com.ngel.appestadistica.ui.position.PositionMeasuresScreen
 
 private const val MAIN_ROUTE = "principal"
 private const val FREQUENCY_ROUTE = "frecuencias"
 private const val BOX_PLOT_ROUTE = "caja"
+private const val POSITION_MEASURES_ROUTE = "medidas_posicion"
 
 @Composable
 fun EstadisticaApp(viewModel: StatisticsViewModel = viewModel()) {
@@ -28,10 +30,12 @@ fun EstadisticaApp(viewModel: StatisticsViewModel = viewModel()) {
                 onCalculate = viewModel::calculate,
                 onToggleStatistics = viewModel::toggleStatistics,
                 onFrequencyClick = { if (viewModel.validateForNavigation()) navController.navigate(FREQUENCY_ROUTE) },
-                onBoxPlotClick = { if (viewModel.validateForNavigation()) navController.navigate(BOX_PLOT_ROUTE) }
+                onBoxPlotClick = { if (viewModel.validateForNavigation()) navController.navigate(BOX_PLOT_ROUTE) },
+                onPositionMeasuresClick = { if (viewModel.validateForNavigation()) navController.navigate(POSITION_MEASURES_ROUTE) }
             )
         }
         composable(FREQUENCY_ROUTE) { FrequencyTableScreen(state = state, onBack = navController::popBackStack) }
         composable(BOX_PLOT_ROUTE) { BoxPlotScreen(state = state, onBack = navController::popBackStack) }
+        composable(POSITION_MEASURES_ROUTE) { PositionMeasuresScreen(data = state.data, onBack = navController::popBackStack) }
     }
 }

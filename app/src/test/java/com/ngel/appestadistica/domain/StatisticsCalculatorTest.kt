@@ -16,7 +16,7 @@ class StatisticsCalculatorTest {
         assertEquals(3.7727, result.standardDeviation!!, 0.0001)
         assertEquals(1.1930, result.standardError!!, 0.0001)
         assertEquals(listOf(15.0, 21.0), result.modes)
-        assertEquals(15.0, result.q1, 0.0)
+        assertEquals(14.75, result.q1, 0.0)
         assertEquals(17.5, result.median, 0.0)
         assertEquals(21.0, result.q3, 0.0)
     }
@@ -41,5 +41,26 @@ class StatisticsCalculatorTest {
         val continuous = FrequencyTableCalculator.calculate(sample, VariableType.CONTINUA) as FrequencyTable.Continuous
         assertEquals(sample.size, continuous.rows.sumOf { it.frequency })
         assertEquals(1.0, continuous.rows.last().accumulatedRelativeFrequency, 0.000001)
+    }
+
+    @Test fun `calculates percentiles with n plus one position and linear interpolation`() {
+        val values = listOf(4.0, 1.0, 3.0, 2.0)
+        assertEquals(1.25, StatisticsCalculator.percentileInclusive(values, 0.25), 0.0001)
+        assertEquals(2.5, StatisticsCalculator.percentileInclusive(values, 0.50), 0.0001)
+        assertEquals(3.75, StatisticsCalculator.percentileInclusive(values, 0.75), 0.0001)
+        assertEquals(2.0, StatisticsCalculator.percentileInclusive(values, 0.40), 0.0001)
+        assertEquals(1.0, StatisticsCalculator.percentileInclusive(values, 0.01), 0.0001)
+        assertEquals(4.0, StatisticsCalculator.percentileInclusive(values, 0.99), 0.0001)
+        assertEquals(1.5, StatisticsCalculator.percentileInclusive(listOf(1.0, 2.0, 3.0, 4.0, 5.0), 0.25), 0.0001)
+    }
+
+    @Test fun `quartiles match percentiles calculated with n plus one`() {
+        val values = listOf(1.0, 2.0, 3.0, 4.0)
+        val statistics = StatisticsCalculator.calculate(values)
+        assertEquals(StatisticsCalculator.percentileInclusive(values, 0.25), statistics.q1, 0.0)
+        assertEquals(StatisticsCalculator.percentileInclusive(values, 0.50), statistics.median, 0.0)
+        assertEquals(StatisticsCalculator.percentileInclusive(values, 0.75), statistics.q3, 0.0)
+        assertEquals(1.0, StatisticsCalculator.percentileInclusive(values, 0.10), 0.0001)
+        assertEquals(4.0, StatisticsCalculator.percentileInclusive(values, 0.90), 0.0001)
     }
 }

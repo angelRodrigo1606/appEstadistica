@@ -33,9 +33,9 @@ object StatisticsCalculator {
         val mean = sum / count
         val min = sorted.first()
         val max = sorted.last()
-        val q1 = medianOf(sorted.take(count / 2))
-        val median = medianOf(sorted)
-        val q3 = medianOf(sorted.drop((count + 1) / 2))
+        val q1 = percentileInclusive(sorted, 0.25)
+        val median = percentileInclusive(sorted, 0.50)
+        val q3 = percentileInclusive(sorted, 0.75)
         val modes = modesOf(sorted)
         val variance = if (count >= 2) sorted.sumOf { (it - mean) * (it - mean) } / (count - 1) else null
         val standardDeviation = variance?.let(::sqrt)
@@ -69,10 +69,24 @@ object StatisticsCalculator {
         )
     }
 
-    private fun medianOf(sorted: List<Double>): Double {
-        require(sorted.isNotEmpty())
-        val middle = sorted.size / 2
-        return if (sorted.size % 2 == 0) (sorted[middle - 1] + sorted[middle]) / 2.0 else sorted[middle]
+    /**
+     * Calcula un percentil mediante la posición k(n + 1) / 100.
+     * Si la posición no es entera, interpola como Xi + d(Xi+1 - Xi).
+     * [percentile] se expresa entre 0.0 (P0) y 1.0 (P100).
+     */
+    fun percentileInclusive(values: List<Double>, percentile: Double): Double {
+        require(values.isNotEmpty()) { "Se requiere al menos un dato." }
+        require(percentile in 0.0..1.0) { "El percentil debe estar entre 0 y 1." }
+        val sorted = values.sorted()
+        val oneBasedPosition = percentile * (sorted.size + 1)
+        if (oneBasedPosition <= 1.0) return sorted.first()
+        if (oneBasedPosition >= sorted.size) return sorted.last()
+        val lowerPosition = oneBasedPosition.toInt()
+        if (oneBasedPosition == lowerPosition.toDouble()) return sorted[lowerPosition - 1]
+        val lowerIndex = lowerPosition - 1
+        val upperIndex = lowerIndex + 1
+        val fraction = oneBasedPosition - lowerPosition
+        return sorted[lowerIndex] + (sorted[upperIndex] - sorted[lowerIndex]) * fraction
     }
 
     private fun modesOf(values: List<Double>): List<Double> {
