@@ -28,4 +28,4 @@ El resultado debe presentarse como porcentaje con cuatro decimales.
 
 ## Estado
 
-**Pendiente de implementación.**
+**Solucionado.** El coeficiente de variación se calcula a partir de la desviación típica muestral y la media, se muestra como porcentaje con cuatro decimales y se presenta como **No aplica** cuando la media es cero.

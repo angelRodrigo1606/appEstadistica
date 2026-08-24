@@ -3,6 +3,7 @@ package com.ngel.appestadistica.domain
 import com.ngel.appestadistica.domain.model.FrequencyTable
 import com.ngel.appestadistica.domain.model.VariableType
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -14,6 +15,7 @@ class StatisticsCalculatorTest {
         assertEquals(17.7, result.mean, 0.0001)
         assertEquals(14.2333, result.variance!!, 0.0001)
         assertEquals(3.7727, result.standardDeviation!!, 0.0001)
+        assertEquals(result.standardDeviation!! / result.mean * 100.0, result.coefficientVariation!!, 0.0001)
         assertEquals(1.1930, result.standardError!!, 0.0001)
         assertEquals(listOf(15.0, 21.0), result.modes)
         assertEquals(14.75, result.q1, 0.0)
@@ -62,5 +64,10 @@ class StatisticsCalculatorTest {
         assertEquals(StatisticsCalculator.percentileInclusive(values, 0.75), statistics.q3, 0.0)
         assertEquals(1.0, StatisticsCalculator.percentileInclusive(values, 0.10), 0.0001)
         assertEquals(4.0, StatisticsCalculator.percentileInclusive(values, 0.90), 0.0001)
+    }
+
+    @Test fun `does not calculate variation coefficient when mean is zero`() {
+        val result = StatisticsCalculator.calculate(listOf(-2.0, 2.0))
+        assertNull(result.coefficientVariation)
     }
 }

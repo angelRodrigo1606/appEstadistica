@@ -14,6 +14,7 @@ data class DescriptiveStatistics(
     val q3: Double,
     val variance: Double?,
     val standardDeviation: Double?,
+    val coefficientVariation: Double?,
     val kurtosis: Double?,
     val skewness: Double?,
     val range: Double,

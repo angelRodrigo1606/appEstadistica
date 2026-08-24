@@ -143,7 +143,8 @@ private fun StatisticsCard(stats: DescriptiveStatistics, expanded: Boolean, onTo
                         "Media" to stats.mean.display(), "Error estándar" to stats.standardError.displayOrNA(),
                         "Mediana" to stats.median.display(), "Primer cuartil" to stats.q1.display(),
                         "Tercer cuartil" to stats.q3.display(), "Varianza" to stats.variance.displayOrNA(),
-                        "Desviación típica" to stats.standardDeviation.displayOrNA()
+                        "Desviación típica" to stats.standardDeviation.displayOrNA(),
+                        "Coef. variación" to stats.coefficientVariation?.let { "${it.display()} %" }.orEmpty().ifEmpty { "No aplica" }
                     ))
                     Spacer(Modifier.width(16.dp))
                     StatisticColumn(Modifier.weight(1f), listOf(

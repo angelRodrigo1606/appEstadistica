@@ -40,6 +40,9 @@ object StatisticsCalculator {
         val variance = if (count >= 2) sorted.sumOf { (it - mean) * (it - mean) } / (count - 1) else null
         val standardDeviation = variance?.let(::sqrt)
         val standardError = standardDeviation?.div(sqrt(count.toDouble()))
+        val coefficientVariation = standardDeviation?.takeIf { mean != 0.0 }?.let { deviation ->
+            (deviation / mean) * 100.0
+        }
         val skewness = standardDeviation?.takeIf { count >= 3 && it > 0.0 }?.let { deviation ->
             count.toDouble() / ((count - 1.0) * (count - 2.0)) *
                 sorted.sumOf { ((it - mean) / deviation).let { standardized -> standardized * standardized * standardized } }
@@ -50,7 +53,7 @@ object StatisticsCalculator {
             (n * (n + 1.0) / ((n - 1.0) * (n - 2.0) * (n - 3.0))) * fourthMoment -
                 (3.0 * (n - 1.0) * (n - 1.0) / ((n - 2.0) * (n - 3.0)))
         }
-        return DescriptiveStatistics(mean, standardError, modes, median, q1, q3, variance, standardDeviation, kurtosis, skewness, max - min, min, max, sum, count)
+        return DescriptiveStatistics(mean, standardError, modes, median, q1, q3, variance, standardDeviation, coefficientVariation, kurtosis, skewness, max - min, min, max, sum, count)
     }
 
     fun calculateBoxPlot(values: List<Double>): BoxPlotSummary {
