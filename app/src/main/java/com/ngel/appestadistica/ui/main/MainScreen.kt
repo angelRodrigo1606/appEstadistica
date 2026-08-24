@@ -28,6 +28,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -48,13 +50,19 @@ fun MainScreen(
     onBoxPlotClick: () -> Unit,
     onPositionMeasuresClick: () -> Unit
 ) {
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
     Column(
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState()).padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         Text("Estadística descriptiva", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-        InputCard(state, onInputChange, onVariableSelected, onCalculate)
+        InputCard(state, onInputChange, onVariableSelected) {
+            focusManager.clearFocus()
+            keyboardController?.hide()
+            onCalculate()
+        }
         NavigationCard("▣", "GENERAR tabla de frecuencias", onFrequencyClick)
         NavigationCard("↕", "GENERAR GRÁFICO DE CAJA O BIGOTE", onBoxPlotClick)
         NavigationCard("%", "CONSULTAR MEDIDAS DE POSICIÓN", onPositionMeasuresClick)
